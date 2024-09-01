@@ -1,0 +1,14 @@
+{
+  "server": {
+    "Port": ":5005",
+    "ReadTimeout": 5,
+    "WriteTimeout": 5
+  },
+  "mysql": {
+    "host": "localhost",
+    "port": "3306",
+    "dbName": "annotator",
+    "user": "root",
+    "password": "rootroot"
+  }
+}
