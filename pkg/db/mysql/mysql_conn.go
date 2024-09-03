@@ -24,7 +24,6 @@ func NewMySqlDB(c *config.Config) (*sql.DB, error) {
 		c.MySql.DbName,
 	)
 
-	fmt.Println(dataSourceName)
 	db, err := sql.Open("mysql", dataSourceName)
 	if err != nil {
 		return nil, err

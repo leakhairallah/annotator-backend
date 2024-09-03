@@ -4,19 +4,19 @@ import (
 	"annotator-backend/internal/app"
 	"annotator-backend/pkg/db/mysql"
 	"database/sql"
-	"log"
+	"github.com/labstack/gommon/log"
 
 	"annotator-backend/config"
 )
 
 const (
-	DbConfigFile = "db"
+	ConfigFile = "config"
 )
 
 func main() {
-	log.Println("Starting annotator backend...")
+	log.Info("Starting annotator backend...")
 
-	configFile, err := config.LoadConfig(DbConfigFile)
+	configFile, err := config.LoadConfig(ConfigFile)
 	if err != nil {
 		log.Fatalf("LoadConfig: %v", err)
 	}

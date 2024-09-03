@@ -38,7 +38,7 @@ func (annotatorApp *AnnotatorApp) Run() error {
 	}
 
 	go func() {
-		log.Infof("Server is listening on PORT: %s", annotatorApp.config.Server.Port)
+		log.Info("Server is listening on PORT: %s", annotatorApp.config.Server.Port)
 		if err := annotatorApp.echo.StartServer(server); err != nil {
 			log.Fatal("Error starting Server: ", err)
 		}
