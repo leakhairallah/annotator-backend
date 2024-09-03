@@ -4,7 +4,6 @@ import (
 	"annotator-backend/internal/dtos"
 	"annotator-backend/internal/services/annotation"
 	customErrorhandler "annotator-backend/pkg/errors"
-	"fmt"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"
 	"net/http"
@@ -21,7 +20,7 @@ func NewAnnotationHandlers(annotationService annotation.AnnotationService) Handl
 
 func (a annotationHandlers) Create() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var annotationFromContext dtos.Annotation
+		var annotationFromContext dtos.AnnotationRequest
 		if err := c.Bind(&annotationFromContext); err != nil {
 			log.Error(customErrorhandler.BuildRequestFailedMessage(c.Request().URL.String(), http.StatusBadRequest))
 			return echo.NewHTTPError(http.StatusBadRequest, customErrorhandler.BadRequest)
@@ -55,7 +54,7 @@ func (a annotationHandlers) GetAll() echo.HandlerFunc {
 
 func (a annotationHandlers) Update() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var annotationFromContext dtos.Annotation
+		var annotationFromContext dtos.AnnotationRequest
 		if err := c.Bind(&annotationFromContext); err != nil {
 			log.Error(customErrorhandler.BuildRequestFailedMessage(c.Request().URL.String(), http.StatusBadRequest))
 			return echo.NewHTTPError(http.StatusBadRequest, customErrorhandler.BadRequest)
@@ -67,7 +66,7 @@ func (a annotationHandlers) Update() echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusNotFound, customErrorhandler.RequestNotFound(c.Param("id")))
 		}
 
-		err = a.annotationService.ModifyAnnotation(annotationId, &annotationFromContext)
+		updatedAnnotation, err := a.annotationService.ModifyAnnotation(annotationId, &annotationFromContext)
 		if err != nil {
 			handledError := customErrorhandler.HandleCustomError(err)
 			log.Error(customErrorhandler.BuildRequestFailedMessage(c.Request().URL.String(), handledError.Code))
@@ -75,7 +74,7 @@ func (a annotationHandlers) Update() echo.HandlerFunc {
 		}
 
 		log.Info(customErrorhandler.BuildRequestSucceededMessage(c.Request().URL.String(), http.StatusOK))
-		return c.JSON(http.StatusOK, fmt.Sprintf("Successfully updated annotation with id %d", annotationId))
+		return c.JSON(http.StatusOK, updatedAnnotation)
 	}
 }
 
@@ -95,6 +94,6 @@ func (a annotationHandlers) Delete() echo.HandlerFunc {
 		}
 
 		log.Info(customErrorhandler.BuildRequestSucceededMessage(c.Request().URL.String(), http.StatusOK))
-		return c.JSON(http.StatusOK, fmt.Sprintf("Successfully deleted annotation with id %d", annotationId))
+		return c.JSON(http.StatusOK, dtos.DeleteAnnotationResponse{Success: true})
 	}
 }

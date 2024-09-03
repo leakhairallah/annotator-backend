@@ -14,7 +14,7 @@ type DefaultAnnotationService struct {
 	validator     *validator.Validate
 }
 
-func (annotationService DefaultAnnotationService) CreateAnnotation(annotation *dtos.Annotation) (models.Annotation, error) {
+func (annotationService DefaultAnnotationService) CreateAnnotation(annotation *dtos.AnnotationRequest) (models.Annotation, error) {
 	err := annotationService.validator.Struct(annotation)
 	if err != nil {
 		log.Error(err.Error())
@@ -27,11 +27,11 @@ func (annotationService DefaultAnnotationService) GetAnnotations() ([]models.Ann
 	return annotationService.annotationDal.GetAnnotations()
 }
 
-func (annotationService DefaultAnnotationService) ModifyAnnotation(id int, annotation *dtos.Annotation) error {
+func (annotationService DefaultAnnotationService) ModifyAnnotation(id int, annotation *dtos.AnnotationRequest) (models.Annotation, error) {
 	err := annotationService.validator.Struct(annotation)
 	if err != nil {
 		log.Error(err.Error())
-		return &errors.IncorrectFieldsError{CustomError: &errors.CustomError{Message: errors.BuildIncorrectFieldsMessage(err)}}
+		return models.Annotation{}, &errors.IncorrectFieldsError{CustomError: &errors.CustomError{Message: errors.BuildIncorrectFieldsMessage(err)}}
 	}
 	return annotationService.annotationDal.UpdateAnnotation(id, annotation)
 }

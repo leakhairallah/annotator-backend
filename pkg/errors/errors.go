@@ -40,7 +40,7 @@ func HandleCustomError(err error) *echo.HTTPError {
 	var idNotFoundError *IdNotFound
 
 	if errors.As(err, &incorrectFieldsError) {
-		return echo.NewHTTPError(http.StatusBadRequest, BadRequest)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	} else if errors.As(err, &databaseError) {
 		return echo.NewHTTPError(http.StatusInternalServerError, InternalServererror)
 	} else if errors.As(err, &idNotFoundError) {

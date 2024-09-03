@@ -13,7 +13,7 @@ func (annotatorApp *AnnotatorApp) MapHandlers(e *echo.Echo) error {
 	annotationHandler := handlers.NewAnnotationHandlers(annotationService)
 
 	v1 := e.Group("/api/v1")
-	annotationGroup := v1.Group("/annotation")
+	annotationGroup := v1.Group("/annotations")
 	handlers.MapAnnotationRoutes(annotationGroup, annotationHandler)
 	return nil
 }

@@ -8,9 +8,9 @@ import (
 )
 
 type AnnotationService interface {
-	CreateAnnotation(annotation *dtos.Annotation) (models.Annotation, error)
+	CreateAnnotation(annotation *dtos.AnnotationRequest) (models.Annotation, error)
 	GetAnnotations() ([]models.Annotation, error)
-	ModifyAnnotation(id int, annotation *dtos.Annotation) error
+	ModifyAnnotation(id int, annotation *dtos.AnnotationRequest) (models.Annotation, error)
 	DeleteAnnotation(id int) error
 }
 

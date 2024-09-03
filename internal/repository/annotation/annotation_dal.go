@@ -7,9 +7,9 @@ import (
 )
 
 type AnnotationDal interface {
-	AddAnnotation(annotation *dtos.Annotation) (models.Annotation, error)
+	AddAnnotation(annotation *dtos.AnnotationRequest) (models.Annotation, error)
 	GetAnnotations() ([]models.Annotation, error)
-	UpdateAnnotation(id int, annotation *dtos.Annotation) error
+	UpdateAnnotation(id int, annotation *dtos.AnnotationRequest) (models.Annotation, error)
 	DeleteAnnotation(id int) error
 }
 
