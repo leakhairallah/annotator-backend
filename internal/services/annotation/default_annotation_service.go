@@ -37,5 +37,5 @@ func (annotationService DefaultAnnotationService) ModifyAnnotation(id int, annot
 }
 
 func (annotationService DefaultAnnotationService) DeleteAnnotation(id int) error {
-	return annotationService.DeleteAnnotation(id)
+	return annotationService.annotationDal.DeleteAnnotation(id)
 }

@@ -10,7 +10,7 @@ type AnnotationDal interface {
 	AddAnnotation(annotation *dtos.Annotation) (models.Annotation, error)
 	GetAnnotations() ([]models.Annotation, error)
 	UpdateAnnotation(id int, annotation *dtos.Annotation) error
-	DeleteAnnotation(id int)
+	DeleteAnnotation(id int) error
 }
 
 func NewMySqlAnnotationDal(db *sql.DB) AnnotationDal {

@@ -121,7 +121,7 @@ func (db MySqlAnnotationDal) UpdateAnnotation(id int, annotation *dtos.Annotatio
 	}
 
 	if rowsAffected == 0 {
-		log.Warn("No rows updated, ID may not exist")
+		log.Warnf("No rows updated, ID %d may not exist", id)
 		return &errors.IdNotFound{CustomError: &errors.CustomError{Message: errors.RequestNotFound(strconv.Itoa(id))}}
 	}
 
@@ -129,6 +129,36 @@ func (db MySqlAnnotationDal) UpdateAnnotation(id int, annotation *dtos.Annotatio
 	return nil
 }
 
-func (db MySqlAnnotationDal) DeleteAnnotation(id int) {
+func (db MySqlAnnotationDal) DeleteAnnotation(id int) error {
+	query := fmt.Sprintf("DELETE FROM %s WHERE id = ?", TableName)
+	stmtIns, err := db.conn.Prepare(query)
+	if err != nil {
+		log.Error(err.Error())
+		return &errors.CustomError{Message: errors.InternalServererror}
+	}
+	defer func(stmtIns *sql.Stmt) {
+		err := stmtIns.Close()
+		if err != nil {
+			log.Warn(err.Error())
+		}
+	}(stmtIns)
 
+	result, err := stmtIns.Exec(id)
+	if err != nil {
+		log.Error(err.Error())
+		return &errors.CustomError{Message: errors.InternalServererror}
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		log.Warn(err.Error())
+	}
+
+	if rowsAffected == 0 {
+		log.Warnf("No rows updated, ID %d may not exist", id)
+		return &errors.IdNotFound{CustomError: &errors.CustomError{Message: errors.RequestNotFound(strconv.Itoa(id))}}
+	}
+
+	log.Infof("Successfully deleted annotation with id %d", id)
+	return nil
 }
