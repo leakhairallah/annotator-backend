@@ -6,6 +6,7 @@ import (
 	"annotator-backend/internal/repository/annotation"
 	"annotator-backend/pkg/errors"
 	"github.com/go-playground/validator/v10"
+	"github.com/labstack/gommon/log"
 )
 
 type DefaultAnnotationService struct {
@@ -16,6 +17,7 @@ type DefaultAnnotationService struct {
 func (annotationService DefaultAnnotationService) CreateAnnotation(annotation *dtos.Annotation) (models.Annotation, error) {
 	err := annotationService.validator.Struct(annotation)
 	if err != nil {
+		log.Error(err.Error())
 		return models.Annotation{}, &errors.IncorrectFieldsError{CustomError: &errors.CustomError{Message: errors.BuildIncorrectFieldsMessage(err)}}
 	}
 	return annotationService.annotationDal.AddAnnotation(annotation)
@@ -25,8 +27,13 @@ func (annotationService DefaultAnnotationService) GetAnnotations() ([]models.Ann
 	return annotationService.annotationDal.GetAnnotations()
 }
 
-func (annotationService DefaultAnnotationService) ModifyAnnotation(annotation *models.Annotation) (models.Annotation, error) {
-	return annotationService.annotationDal.UpdateAnnotation(annotation)
+func (annotationService DefaultAnnotationService) ModifyAnnotation(id int, annotation *dtos.Annotation) error {
+	err := annotationService.validator.Struct(annotation)
+	if err != nil {
+		log.Error(err.Error())
+		return &errors.IncorrectFieldsError{CustomError: &errors.CustomError{Message: errors.BuildIncorrectFieldsMessage(err)}}
+	}
+	return annotationService.annotationDal.UpdateAnnotation(id, annotation)
 }
 
 func (annotationService DefaultAnnotationService) DeleteAnnotation(id int) error {

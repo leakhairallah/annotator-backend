@@ -7,6 +7,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/labstack/gommon/log"
+	"strconv"
 )
 
 const (
@@ -42,7 +43,6 @@ func (db MySqlAnnotationDal) AddAnnotation(annotation *dtos.Annotation) (models.
 	lastInsertID, err := result.LastInsertId()
 	if err != nil {
 		log.Warn(err.Error())
-		return models.Annotation{}, nil
 	}
 
 	log.Infof("Successfully added annotation with id %d", lastInsertID)
@@ -63,7 +63,7 @@ func (db MySqlAnnotationDal) GetAnnotations() ([]models.Annotation, error) {
 		}
 	}(stmtIns)
 
-	rows, err := stmtIns.Query()
+	result, err := stmtIns.Query()
 	if err != nil {
 		log.Error(err.Error())
 		return nil, &errors.DatabaseError{CustomError: &errors.CustomError{Message: errors.InternalServererror}}
@@ -73,12 +73,12 @@ func (db MySqlAnnotationDal) GetAnnotations() ([]models.Annotation, error) {
 		if err != nil {
 			log.Warn(err.Error())
 		}
-	}(rows)
+	}(result)
 
 	var annotations []models.Annotation
-	for rows.Next() {
+	for result.Next() {
 		var a models.Annotation
-		err := rows.Scan(&a.Id, &a.Text, &a.Metadata)
+		err := result.Scan(&a.Id, &a.Text, &a.Metadata)
 		if err != nil {
 			log.Error(err.Error())
 			return nil, &errors.DatabaseError{CustomError: &errors.CustomError{Message: errors.InternalServererror}}
@@ -86,7 +86,7 @@ func (db MySqlAnnotationDal) GetAnnotations() ([]models.Annotation, error) {
 		annotations = append(annotations, a)
 	}
 
-	if err := rows.Err(); err != nil {
+	if err := result.Err(); err != nil {
 		log.Error(err.Error())
 		return nil, &errors.DatabaseError{CustomError: &errors.CustomError{Message: errors.InternalServererror}}
 	}
@@ -95,8 +95,38 @@ func (db MySqlAnnotationDal) GetAnnotations() ([]models.Annotation, error) {
 	return annotations, nil
 }
 
-func (db MySqlAnnotationDal) UpdateAnnotation(annotation *models.Annotation) (models.Annotation, error) {
-	return models.Annotation{}, nil
+func (db MySqlAnnotationDal) UpdateAnnotation(id int, annotation *dtos.Annotation) error {
+	query := fmt.Sprintf("UPDATE %s SET text = ?, metadata = ? WHERE id = ?", TableName)
+	stmtIns, err := db.conn.Prepare(query)
+	if err != nil {
+		log.Error(err.Error())
+		return &errors.CustomError{Message: errors.InternalServererror}
+	}
+	defer func(stmtIns *sql.Stmt) {
+		err := stmtIns.Close()
+		if err != nil {
+			log.Warn(err.Error())
+		}
+	}(stmtIns)
+
+	result, err := stmtIns.Exec(annotation.Text, annotation.Metadata, id)
+	if err != nil {
+		log.Error(err.Error())
+		return &errors.DatabaseError{CustomError: &errors.CustomError{}}
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		log.Warn(err.Error())
+	}
+
+	if rowsAffected == 0 {
+		log.Warn("No rows updated, ID may not exist")
+		return &errors.IdNotFound{CustomError: &errors.CustomError{Message: errors.RequestNotFound(strconv.Itoa(id))}}
+	}
+
+	log.Infof("Successfully updated annotation with id %d", id)
+	return nil
 }
 
 func (db MySqlAnnotationDal) DeleteAnnotation(id int) {

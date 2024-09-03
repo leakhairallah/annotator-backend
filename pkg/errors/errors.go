@@ -11,6 +11,7 @@ import (
 const (
 	BadRequest          = "Invalid request payload"
 	InternalServererror = "Internal server error"
+	requestNotFound     = "The request resource with ID %s was not found"
 )
 
 type CustomError struct {
@@ -29,16 +30,28 @@ type DatabaseError struct {
 	*CustomError
 }
 
+type IdNotFound struct {
+	*CustomError
+}
+
 func HandleCustomError(err error) *echo.HTTPError {
 	var incorrectFieldsError *IncorrectFieldsError
 	var databaseError *DatabaseError
+	var idNotFoundError *IdNotFound
 
 	if errors.As(err, &incorrectFieldsError) {
 		return echo.NewHTTPError(http.StatusBadRequest, BadRequest)
 	} else if errors.As(err, &databaseError) {
 		return echo.NewHTTPError(http.StatusInternalServerError, InternalServererror)
+	} else if errors.As(err, &idNotFoundError) {
+		return echo.NewHTTPError(http.StatusNotFound, err.Error())
 	}
+
 	return echo.NewHTTPError(http.StatusInternalServerError, InternalServererror)
+}
+
+func RequestNotFound(id string) string {
+	return fmt.Sprintf(requestNotFound, id)
 }
 
 func BuildRequestFailedMessage(request string, statusCode int) string {
