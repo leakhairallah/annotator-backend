@@ -41,8 +41,12 @@ func HandleCustomError(err error) *echo.HTTPError {
 	return echo.NewHTTPError(http.StatusInternalServerError, InternalServererror)
 }
 
-func BuildRequestFailedErrorMessage(request string, statusCode int) string {
+func BuildRequestFailedMessage(request string, statusCode int) string {
 	return fmt.Sprintf("Request %s failed with status code: %d", request, statusCode)
+}
+
+func BuildRequestSucceededMessage(request string, statusCode int) string {
+	return fmt.Sprintf("Request %s succeeded with status code: %d", request, statusCode)
 }
 
 func BuildIncorrectFieldsMessage(error error) string {
