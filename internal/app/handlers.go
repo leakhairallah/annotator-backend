@@ -9,7 +9,7 @@ import (
 
 func (annotatorApp *AnnotatorApp) MapHandlers(e *echo.Echo) error {
 	annotationRepo := repo.NewMySqlAnnotationDal(annotatorApp.db)
-	annotationService := service.NewDefaultAnnotationService(&annotationRepo)
+	annotationService := service.NewDefaultAnnotationService(annotationRepo)
 	annotationHandler := handlers.NewAnnotationHandlers(annotationService)
 
 	v1 := e.Group("/api/v1")

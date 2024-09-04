@@ -17,11 +17,11 @@ const (
 	MetadataColumnName = "metadata"
 )
 
-type MySqlAnnotationDal struct {
+type mySqlAnnotationDal struct {
 	conn *sql.DB
 }
 
-func (db MySqlAnnotationDal) AddAnnotation(annotation *dtos.AnnotationRequest) (models.Annotation, error) {
+func (db mySqlAnnotationDal) AddAnnotation(annotation *dtos.AnnotationRequest) (models.Annotation, error) {
 	query := fmt.Sprintf("INSERT INTO %s (%s, %s) VALUES(?, ?)", TableName, TextColumnName, MetadataColumnName)
 	stmt, err := db.conn.Prepare(query)
 	if err != nil {
@@ -50,7 +50,7 @@ func (db MySqlAnnotationDal) AddAnnotation(annotation *dtos.AnnotationRequest) (
 	return models.Annotation{Id: int(lastInsertID), Text: annotation.Text, Metadata: annotation.Metadata}, nil
 }
 
-func (db MySqlAnnotationDal) GetAnnotations() ([]models.Annotation, error) {
+func (db mySqlAnnotationDal) GetAnnotations() ([]models.Annotation, error) {
 	query := fmt.Sprintf("SELECT * FROM %s", TableName)
 	stmt, err := db.conn.Prepare(query)
 	if err != nil {
@@ -96,7 +96,7 @@ func (db MySqlAnnotationDal) GetAnnotations() ([]models.Annotation, error) {
 	return annotations, nil
 }
 
-func (db MySqlAnnotationDal) UpdateAnnotation(id int, annotation *dtos.AnnotationRequest) (models.Annotation, error) {
+func (db mySqlAnnotationDal) UpdateAnnotation(id int, annotation *dtos.AnnotationRequest) (models.Annotation, error) {
 	query := fmt.Sprintf("UPDATE %s SET text = ?, metadata = ? WHERE id = ?", TableName)
 	stmt, err := db.conn.Prepare(query)
 	if err != nil {
@@ -136,7 +136,7 @@ func (db MySqlAnnotationDal) UpdateAnnotation(id int, annotation *dtos.Annotatio
 	return updatedAnnotations, nil
 }
 
-func (db MySqlAnnotationDal) DeleteAnnotation(id int) error {
+func (db mySqlAnnotationDal) DeleteAnnotation(id int) error {
 	query := fmt.Sprintf("DELETE FROM %s WHERE id = ?", TableName)
 	stmt, err := db.conn.Prepare(query)
 	if err != nil {
@@ -170,7 +170,7 @@ func (db MySqlAnnotationDal) DeleteAnnotation(id int) error {
 	return nil
 }
 
-func (db MySqlAnnotationDal) getAnnotationById(id int) (models.Annotation, error) {
+func (db mySqlAnnotationDal) getAnnotationById(id int) (models.Annotation, error) {
 	query := fmt.Sprintf("SELECT id, text, metadata FROM %s WHERE id = ?", TableName)
 	stmt, err := db.conn.Prepare(query)
 	if err != nil {

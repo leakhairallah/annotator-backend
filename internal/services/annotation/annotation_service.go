@@ -14,6 +14,6 @@ type AnnotationService interface {
 	DeleteAnnotation(id int) error
 }
 
-func NewDefaultAnnotationService(annotationDal *annotation.AnnotationDal) AnnotationService {
-	return &DefaultAnnotationService{annotationDal: *annotationDal, validator: validator.New()}
+func NewDefaultAnnotationService(annotationDal annotation.AnnotationDal) AnnotationService {
+	return &defaultAnnotationService{annotationDal: annotationDal, validator: validator.New()}
 }

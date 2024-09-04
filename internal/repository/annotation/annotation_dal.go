@@ -14,5 +14,5 @@ type AnnotationDal interface {
 }
 
 func NewMySqlAnnotationDal(db *sql.DB) AnnotationDal {
-	return &MySqlAnnotationDal{conn: db}
+	return &mySqlAnnotationDal{conn: db}
 }

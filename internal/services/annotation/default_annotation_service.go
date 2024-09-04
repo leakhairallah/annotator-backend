@@ -9,12 +9,12 @@ import (
 	"github.com/labstack/gommon/log"
 )
 
-type DefaultAnnotationService struct {
+type defaultAnnotationService struct {
 	annotationDal annotation.AnnotationDal
 	validator     *validator.Validate
 }
 
-func (annotationService DefaultAnnotationService) CreateAnnotation(annotation *dtos.AnnotationRequest) (models.Annotation, error) {
+func (annotationService defaultAnnotationService) CreateAnnotation(annotation *dtos.AnnotationRequest) (models.Annotation, error) {
 	err := annotationService.validator.Struct(annotation)
 	if err != nil {
 		log.Error(err.Error())
@@ -23,11 +23,11 @@ func (annotationService DefaultAnnotationService) CreateAnnotation(annotation *d
 	return annotationService.annotationDal.AddAnnotation(annotation)
 }
 
-func (annotationService DefaultAnnotationService) GetAnnotations() ([]models.Annotation, error) {
+func (annotationService defaultAnnotationService) GetAnnotations() ([]models.Annotation, error) {
 	return annotationService.annotationDal.GetAnnotations()
 }
 
-func (annotationService DefaultAnnotationService) ModifyAnnotation(id int, annotation *dtos.AnnotationRequest) (models.Annotation, error) {
+func (annotationService defaultAnnotationService) ModifyAnnotation(id int, annotation *dtos.AnnotationRequest) (models.Annotation, error) {
 	err := annotationService.validator.Struct(annotation)
 	if err != nil {
 		log.Error(err.Error())
@@ -36,6 +36,6 @@ func (annotationService DefaultAnnotationService) ModifyAnnotation(id int, annot
 	return annotationService.annotationDal.UpdateAnnotation(id, annotation)
 }
 
-func (annotationService DefaultAnnotationService) DeleteAnnotation(id int) error {
+func (annotationService defaultAnnotationService) DeleteAnnotation(id int) error {
 	return annotationService.annotationDal.DeleteAnnotation(id)
 }
