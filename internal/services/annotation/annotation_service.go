@@ -11,7 +11,7 @@ type AnnotationService interface {
 	CreateAnnotation(annotation *dtos.AnnotationRequest) (models.Annotation, error)
 	GetAnnotations() ([]models.Annotation, error)
 	ModifyAnnotation(id int, annotation *dtos.AnnotationRequest) (models.Annotation, error)
-	DeleteAnnotation(id int) error
+	DeleteAnnotation(id int) (dtos.DeleteAnnotationResponse, error)
 }
 
 func NewDefaultAnnotationService(annotationDal annotation.AnnotationDal) AnnotationService {

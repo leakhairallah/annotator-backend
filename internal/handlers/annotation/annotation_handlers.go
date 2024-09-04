@@ -86,7 +86,7 @@ func (a annotationHandlers) Delete() echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusNotFound, customErrorhandler.RequestNotFound(c.Param("id")))
 		}
 
-		err = a.annotationService.DeleteAnnotation(annotationId)
+		deleteResponse, err := a.annotationService.DeleteAnnotation(annotationId)
 		if err != nil {
 			handledError := customErrorhandler.HandleCustomError(err)
 			log.Error(customErrorhandler.BuildRequestFailedMessage(c.Request().URL.String(), handledError.Code))
@@ -94,6 +94,6 @@ func (a annotationHandlers) Delete() echo.HandlerFunc {
 		}
 
 		log.Info(customErrorhandler.BuildRequestSucceededMessage(c.Request().URL.String(), http.StatusOK))
-		return c.JSON(http.StatusOK, dtos.DeleteAnnotationResponse{Success: true})
+		return c.JSON(http.StatusOK, deleteResponse)
 	}
 }

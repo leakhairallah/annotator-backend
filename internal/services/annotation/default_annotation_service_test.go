@@ -39,12 +39,16 @@ type DummyMetadata struct {
 	Comment string `json:"comment"`
 }
 
-func TestCreateAnnotation_should_return_created_object(t *testing.T) {
-	mockDal := new(MockAnnotationDal)
+var annotationService AnnotationService
+var mockDal = new(MockAnnotationDal)
 
+func init() {
+	annotationService = NewDefaultAnnotationService(mockDal)
+}
+
+func TestCreateAnnotation_should_return_created_object(t *testing.T) {
 	jsonData := createDummyMetadata()
 
-	annotationService := NewDefaultAnnotationService(mockDal)
 	request := &dtos.AnnotationRequest{Text: "العما", Metadata: jsonData}
 	expectedAnnotation := models.Annotation{Id: 10, Text: "العما", Metadata: jsonData}
 
@@ -58,9 +62,6 @@ func TestCreateAnnotation_should_return_created_object(t *testing.T) {
 }
 
 func TestCreateAnnotation_with_invalid_fields_should_return_incorrect_fields_error(t *testing.T) {
-	mockDal := new(MockAnnotationDal)
-
-	annotationService := NewDefaultAnnotationService(mockDal)
 	request := &dtos.AnnotationRequest{Metadata: createDummyMetadata()}
 
 	result, err := annotationService.CreateAnnotation(request)
@@ -73,9 +74,6 @@ func TestCreateAnnotation_with_invalid_fields_should_return_incorrect_fields_err
 }
 
 func TestGetAnnotations_should_return_all_annotations(t *testing.T) {
-	mockDal := new(MockAnnotationDal)
-
-	annotationService := NewDefaultAnnotationService(mockDal)
 	expectedAnnotations := []models.Annotation{
 		{1, "بي", createDummyMetadata()},
 		{2, "بي", createDummyMetadata()},
@@ -92,11 +90,8 @@ func TestGetAnnotations_should_return_all_annotations(t *testing.T) {
 }
 
 func TestModifyAnnotation_should_returned_updated_object(t *testing.T) {
-	mockDal := new(MockAnnotationDal)
-
 	jsonData := createDummyMetadata()
 
-	annotationService := NewDefaultAnnotationService(mockDal)
 	request := &dtos.AnnotationRequest{Text: "تن", Metadata: jsonData}
 	id := 1
 	expectedAnnotation := models.Annotation{Id: id, Text: "تن", Metadata: jsonData}
@@ -111,9 +106,6 @@ func TestModifyAnnotation_should_returned_updated_object(t *testing.T) {
 }
 
 func TestModifyAnnotation_with_invalid_fields_should_return_incorrect_fields_error(t *testing.T) {
-	mockDal := new(MockAnnotationDal)
-
-	annotationService := NewDefaultAnnotationService(mockDal)
 	request := &dtos.AnnotationRequest{Metadata: createDummyMetadata()}
 
 	result, err := annotationService.ModifyAnnotation(1, request)
@@ -126,17 +118,15 @@ func TestModifyAnnotation_with_invalid_fields_should_return_incorrect_fields_err
 }
 
 func TestDeleteAnnotation_should_return_successful_response(t *testing.T) {
-	mockDal := new(MockAnnotationDal)
-
-	annotationService := NewDefaultAnnotationService(mockDal)
-
+	expectedResponse := &dtos.DeleteAnnotationResponse{Success: true}
 	id := 1
 	mockDal.On("DeleteAnnotation", id).Return(nil)
 
-	err := annotationService.DeleteAnnotation(id)
+	response, err := annotationService.DeleteAnnotation(id)
 
 	assert.NoError(t, err)
-	mockDal.AssertExpectations(t)
+	assert.Equal(t, expectedResponse, &response)
+	mockDal.AssertCalled(t, "DeleteAnnotation", id)
 }
 
 func createDummyMetadata() json.RawMessage {
