@@ -11,6 +11,8 @@ import (
 	"strconv"
 )
 
+//TODO Research on a better ORM
+
 const (
 	TableName          = "annotations"
 	TextColumnName     = "text"

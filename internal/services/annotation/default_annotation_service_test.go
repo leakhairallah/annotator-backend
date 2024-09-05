@@ -11,39 +11,35 @@ import (
 	"testing"
 )
 
-type MockAnnotationDal struct {
+type mockAnnotationDal struct {
 	mock.Mock
 }
 
-func (m *MockAnnotationDal) AddAnnotation(annotation *dtos.AnnotationRequest) (models.Annotation, error) {
+func (m *mockAnnotationDal) AddAnnotation(annotation *dtos.AnnotationRequest) (models.Annotation, error) {
 	args := m.Called(annotation)
 	return args.Get(0).(models.Annotation), args.Error(1)
 }
 
-func (m *MockAnnotationDal) GetAnnotations() ([]models.Annotation, error) {
+func (m *mockAnnotationDal) GetAnnotations() ([]models.Annotation, error) {
 	args := m.Called()
 	return args.Get(0).([]models.Annotation), args.Error(1)
 }
 
-func (m *MockAnnotationDal) UpdateAnnotation(id int, annotation *dtos.AnnotationRequest) (models.Annotation, error) {
+func (m *mockAnnotationDal) UpdateAnnotation(id int, annotation *dtos.AnnotationRequest) (models.Annotation, error) {
 	args := m.Called(id, annotation)
 	return args.Get(0).(models.Annotation), args.Error(1)
 }
 
-func (m *MockAnnotationDal) DeleteAnnotation(id int) error {
+func (m *mockAnnotationDal) DeleteAnnotation(id int) error {
 	args := m.Called(id)
 	return args.Error(0)
 }
 
-var annotationService AnnotationService
-var mockDal = new(MockAnnotationDal)
-
-func init() {
-	annotationService = NewDefaultAnnotationService(mockDal)
-}
-
 func TestCreateAnnotation_should_return_created_object(t *testing.T) {
 	jsonData := utils.CreateDummyMetadata()
+
+	mockDal := new(mockAnnotationDal)
+	annotationService := NewDefaultAnnotationService(mockDal)
 
 	request := &dtos.AnnotationRequest{Text: "العما", Metadata: jsonData}
 	expectedAnnotation := models.Annotation{Id: 10, Text: "العما", Metadata: jsonData}
@@ -59,6 +55,9 @@ func TestCreateAnnotation_should_return_created_object(t *testing.T) {
 
 func TestCreateAnnotation_with_invalid_fields_should_return_incorrect_fields_error(t *testing.T) {
 	request := &dtos.AnnotationRequest{Metadata: utils.CreateDummyMetadata()}
+
+	mockDal := new(mockAnnotationDal)
+	annotationService := NewDefaultAnnotationService(mockDal)
 
 	result, err := annotationService.CreateAnnotation(request)
 
@@ -76,6 +75,9 @@ func TestGetAnnotations_should_return_all_annotations(t *testing.T) {
 		{3, "بي", utils.CreateDummyMetadata()},
 	}
 
+	mockDal := new(mockAnnotationDal)
+	annotationService := NewDefaultAnnotationService(mockDal)
+
 	mockDal.On("GetAnnotations").Return(expectedAnnotations, nil)
 
 	result, err := annotationService.GetAnnotations()
@@ -86,8 +88,10 @@ func TestGetAnnotations_should_return_all_annotations(t *testing.T) {
 }
 
 func TestModifyAnnotation_should_returned_updated_object(t *testing.T) {
-	jsonData := utils.CreateDummyMetadata()
+	mockDal := new(mockAnnotationDal)
+	annotationService := NewDefaultAnnotationService(mockDal)
 
+	jsonData := utils.CreateDummyMetadata()
 	request := &dtos.AnnotationRequest{Text: "تن", Metadata: jsonData}
 	id := 1
 	expectedAnnotation := models.Annotation{Id: id, Text: "تن", Metadata: jsonData}
@@ -102,6 +106,9 @@ func TestModifyAnnotation_should_returned_updated_object(t *testing.T) {
 }
 
 func TestModifyAnnotation_with_invalid_fields_should_return_incorrect_fields_error(t *testing.T) {
+	mockDal := new(mockAnnotationDal)
+	annotationService := NewDefaultAnnotationService(mockDal)
+
 	request := &dtos.AnnotationRequest{Metadata: utils.CreateDummyMetadata()}
 
 	result, err := annotationService.ModifyAnnotation(1, request)
@@ -114,6 +121,9 @@ func TestModifyAnnotation_with_invalid_fields_should_return_incorrect_fields_err
 }
 
 func TestDeleteAnnotation_should_return_successful_response(t *testing.T) {
+	mockDal := new(mockAnnotationDal)
+	annotationService := NewDefaultAnnotationService(mockDal)
+
 	expectedResponse := &dtos.DeleteAnnotationResponse{Success: true}
 	id := 1
 	mockDal.On("DeleteAnnotation", id).Return(nil)
@@ -121,6 +131,21 @@ func TestDeleteAnnotation_should_return_successful_response(t *testing.T) {
 	response, err := annotationService.DeleteAnnotation(id)
 
 	assert.NoError(t, err)
+	assert.Equal(t, expectedResponse, &response)
+	mockDal.AssertCalled(t, "DeleteAnnotation", id)
+}
+
+func TestDeleteAnnotation_should_return_unsuccessful_response(t *testing.T) {
+	mockDal := new(mockAnnotationDal)
+	annotationService := NewDefaultAnnotationService(mockDal)
+
+	expectedResponse := &dtos.DeleteAnnotationResponse{Success: false}
+	id := 1
+	mockDal.On("DeleteAnnotation", id).Return(errors.New("error"))
+
+	response, err := annotationService.DeleteAnnotation(id)
+
+	assert.Error(t, err)
 	assert.Equal(t, expectedResponse, &response)
 	mockDal.AssertCalled(t, "DeleteAnnotation", id)
 }

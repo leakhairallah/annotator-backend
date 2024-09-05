@@ -5,6 +5,6 @@ import (
 )
 
 type AnnotationRequest struct {
-	Text     string          `json:"text" validate:"required,min=1"`
+	Text     string          `json:"text" validate:"required"`
 	Metadata json.RawMessage `json:"metadata" validate:"required"`
 }

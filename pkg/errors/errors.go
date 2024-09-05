@@ -65,7 +65,7 @@ func BuildRequestSucceededMessage(request string, statusCode int) string {
 func BuildIncorrectFieldsMessage(error error) string {
 	var message string
 	for _, err := range error.(validator.ValidationErrors) {
-		message += fmt.Sprintf("Field '%s'='%s' failed validation with tag '%s'.", err.Field(), err.Value(), err.Tag())
+		message += fmt.Sprintf("Input '%s' provided for field '%s' is invalid. Field '%s' failed on the following tag '%s'.", err.Value(), err.Field(), err.Field(), err.Tag())
 	}
 	return message
 }
