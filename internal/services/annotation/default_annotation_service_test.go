@@ -4,7 +4,7 @@ import (
 	"annotator-backend/internal/dtos"
 	"annotator-backend/internal/models"
 	customErroHandler "annotator-backend/pkg/errors"
-	"encoding/json"
+	"annotator-backend/pkg/utils"
 	"errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -35,10 +35,6 @@ func (m *MockAnnotationDal) DeleteAnnotation(id int) error {
 	return args.Error(0)
 }
 
-type DummyMetadata struct {
-	Comment string `json:"comment"`
-}
-
 var annotationService AnnotationService
 var mockDal = new(MockAnnotationDal)
 
@@ -47,7 +43,7 @@ func init() {
 }
 
 func TestCreateAnnotation_should_return_created_object(t *testing.T) {
-	jsonData := createDummyMetadata()
+	jsonData := utils.CreateDummyMetadata()
 
 	request := &dtos.AnnotationRequest{Text: "العما", Metadata: jsonData}
 	expectedAnnotation := models.Annotation{Id: 10, Text: "العما", Metadata: jsonData}
@@ -62,7 +58,7 @@ func TestCreateAnnotation_should_return_created_object(t *testing.T) {
 }
 
 func TestCreateAnnotation_with_invalid_fields_should_return_incorrect_fields_error(t *testing.T) {
-	request := &dtos.AnnotationRequest{Metadata: createDummyMetadata()}
+	request := &dtos.AnnotationRequest{Metadata: utils.CreateDummyMetadata()}
 
 	result, err := annotationService.CreateAnnotation(request)
 
@@ -75,9 +71,9 @@ func TestCreateAnnotation_with_invalid_fields_should_return_incorrect_fields_err
 
 func TestGetAnnotations_should_return_all_annotations(t *testing.T) {
 	expectedAnnotations := []models.Annotation{
-		{1, "بي", createDummyMetadata()},
-		{2, "بي", createDummyMetadata()},
-		{3, "بي", createDummyMetadata()},
+		{1, "بي", utils.CreateDummyMetadata()},
+		{2, "بي", utils.CreateDummyMetadata()},
+		{3, "بي", utils.CreateDummyMetadata()},
 	}
 
 	mockDal.On("GetAnnotations").Return(expectedAnnotations, nil)
@@ -90,7 +86,7 @@ func TestGetAnnotations_should_return_all_annotations(t *testing.T) {
 }
 
 func TestModifyAnnotation_should_returned_updated_object(t *testing.T) {
-	jsonData := createDummyMetadata()
+	jsonData := utils.CreateDummyMetadata()
 
 	request := &dtos.AnnotationRequest{Text: "تن", Metadata: jsonData}
 	id := 1
@@ -106,7 +102,7 @@ func TestModifyAnnotation_should_returned_updated_object(t *testing.T) {
 }
 
 func TestModifyAnnotation_with_invalid_fields_should_return_incorrect_fields_error(t *testing.T) {
-	request := &dtos.AnnotationRequest{Metadata: createDummyMetadata()}
+	request := &dtos.AnnotationRequest{Metadata: utils.CreateDummyMetadata()}
 
 	result, err := annotationService.ModifyAnnotation(1, request)
 
@@ -127,10 +123,4 @@ func TestDeleteAnnotation_should_return_successful_response(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, expectedResponse, &response)
 	mockDal.AssertCalled(t, "DeleteAnnotation", id)
-}
-
-func createDummyMetadata() json.RawMessage {
-	dummyMetadata := &DummyMetadata{Comment: "comment"}
-	jsonData, _ := json.Marshal(dummyMetadata)
-	return jsonData
 }
